@@ -9,6 +9,7 @@ public class Player {
         this.Power = InpPower;
         this.SpellCards = InpSpellCards;
         this.Name = InpName;
+        //hi
     }
 
     public static void main(String[] args){
