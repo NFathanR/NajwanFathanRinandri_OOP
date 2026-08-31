@@ -12,7 +12,7 @@ public class Player {
     }
 
     public static void main(String[] args){
-        Player playerA = new Player (100, 20, 5. "Phainon");
+        Player playerA = new Player (100, 20, 5, "Phainon");
     }
 }
 
