@@ -1,4 +1,4 @@
-package com.nama.frontend;
+package com.fathan.frontend;
 
 public class Enemy {
     String name;

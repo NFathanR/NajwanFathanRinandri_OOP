@@ -1,6 +1,6 @@
-package com.nama.frontend;
+package com.fathan.frontend;
 
-ublic class Player {
+public class Player {
     String name;
     int hp;
     int power;
