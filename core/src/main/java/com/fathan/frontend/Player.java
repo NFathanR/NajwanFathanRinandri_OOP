@@ -1,28 +1,36 @@
-package com.fathan.frontend;
+package com.nama.frontend;
 
-public class Player {
-    public int HP, Power, SpellCards;
-    public String Name;
+ublic class Player {
+    String name;
+    int hp;
+    int power;
+    int spellCards;
 
-    Player (int InpHP,int InpPower,int InpSpellCards,String InpName) {
-        this.HP =InpHP;
-        this.Power = InpPower;
-        this.SpellCards = InpSpellCards;
-        this.Name = InpName;
-        //hi
+    public Player(String name, int hp, int power, int spellCards) {
+        this.name = name;
+        this.hp = hp;
+        this.power = power;
+        this.spellCards = spellCards;
     }
 
-    public static void main(String[] args){
-        Player playerA = new Player (100, 20, 5, "Phainon");
+    public void shoot(Enemy target) {
+        int damage = 10 + power;
+        System.out.println(name + " shoots " + target.name + " dealing " + damage + " DMG!");
+        target.takeDamage(damage);
     }
-}
 
-public void takeDamage(int damage) {
-    // 1. Kurangi hp sebesar nilai damage.
+    public void takeDamage(int damage) {
+        this.hp -= damage;
+        if (this.hp < 0) {
+            this.hp = 0;
+        }
+        System.out.println(name + " took " + damage + " damage! Remaining HP: " + this.hp);
+        if (this.hp == 0) {
+            System.out.println(name + " was defeated (Pichuun~)! ");
+        }
+    }
 
-    // 2. HP tidak boleh bernilai negatif.
-
-    // 3. Jika HP masih lebih dari 0, tampilkan HP yang tersisa dalam format: [PlayerName] took [damage] damage! Remaining HP: [hp]
-
-    // 4. Jika HP menjadi 0, tampilkan pesan bahwa Player telah dikalahkan.
+    public boolean isAlive() {
+        return this.hp > 0;
+    }
 }

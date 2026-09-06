@@ -1,16 +1,33 @@
-package com.fathan.frontend;
+package com.nama.frontend;
 
 public class Enemy {
-    public int HP, maxHP;
-    public String Name;
-}
+    String name;
+    int hp;
+    int maxHp;
 
-public void takeDamage(int damage) {
-    // 1. Kurangi hp sebesar nilai damage.
+    public Enemy(String name, int hp) {
+        this.name = name;
+        this.hp = hp;
+        this.maxHp = hp;
+    }
 
-    // 2. HP tidak boleh kurang dari 0.
+    public void takeDamage(int damage) {
+        this.hp -= damage;
+        if (this.hp < 0) {
+            this.hp = 0;
+        }
+        System.out.println(name + " took " + damage + " damage! HP: " + this.hp + "/" + this.maxHp);
+        if (this.hp == 0) {
+            System.out.println(name + " was defeated!");
+        }
+    }
 
-    // 3. Tampilkan HP saat ini dalam format: [EnemyName] took [damage] damage! HP: [currentHP]/[maxHP]
+    public void attack(Player player, int damage) {
+        System.out.println(name + " unleashes bullet barrage on " + player.name + "!");
+        player.takeDamage(damage);
+    }
 
-    // 4. Jika HP mencapai 0, tampilkan bahwa Enemy telah dikalahkan dalam format: [EnemyName] was defeated!
+    public boolean isAlive() {
+        return this.hp > 0;
+    }
 }
