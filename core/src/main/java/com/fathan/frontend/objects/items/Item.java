@@ -1,5 +1,7 @@
 package com.fathan.frontend;
 
+import com.fathan.frontend.objects.GameObject;
+
 import java.awt.*;
 
 public class Item extends GameObject {

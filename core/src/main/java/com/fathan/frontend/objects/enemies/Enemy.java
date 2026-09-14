@@ -1,5 +1,8 @@
 package com.fathan.frontend;
 
+import com.fathan.frontend.objects.GameObject;
+import com.fathan.frontend.objects.Player;
+
 import java.awt.*;
 
 public class Enemy extends GameObject {
