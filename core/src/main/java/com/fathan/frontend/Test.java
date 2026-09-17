@@ -1,5 +1,11 @@
 package com.fathan.frontend;
 
+import com.fathan.frontend.objects.Player;
+import com.fathan.frontend.objects.enemies.Boss;
+import com.fathan.frontend.objects.enemies.Enemy;
+import com.fathan.frontend.objects.enemies.Fairy;
+import com.fathan.frontend.objects.items.Item;
+
 public class Test {
     public static void main(String[] args) {
         System.out.println("=== TOUHOU OOP PRACTICUM - MODULE 1: BASIC CLASSES & OBJECT INTERACTION ===");
@@ -10,7 +16,7 @@ public class Test {
 
         System.out.println("\n--- Initial Battle State ---");
         System.out.println("Player: " + reimu.getName() + " | HP: " + reimu.getHp() + " | Power: " + reimu.getPower() + " | SpellCards: " + reimu.getSpellCards());
-        System.out.println("Enemy:  " + fairyBoss.name + " | HP: " + fairyBoss.hp);
+        System.out.println("Enemy:  " + fairyBoss.getName() + " | HP: " + fairyBoss.getHp());
 
         System.out.println("\n--- Turn 1: Player Shoots Enemy ---");
         reimu.shoot(fairyBoss);

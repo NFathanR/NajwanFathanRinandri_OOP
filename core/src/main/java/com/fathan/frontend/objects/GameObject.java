@@ -1,10 +1,12 @@
-package com.fathan.frontend;
+package com.fathan.frontend.objects;
 
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.graphics.Color;
 
-import java.awt.Color;
+import java.awt.*;
 
-public class GameObject {
+public abstract class GameObject implements Collidable{
     protected float x;
     protected float y;
     protected float width;
@@ -25,7 +27,10 @@ public class GameObject {
     }
 
     public void render(ShapeRenderer shapeRenderer) {
-
+        if (shapeRenderer != null && color != null) {
+            shapeRenderer.setColor(color);
+            shapeRenderer.rect(x, y, width, height);
+        }
     }
 
     public float getX() {
@@ -74,5 +79,20 @@ public class GameObject {
 
     public void setSpeed(float speed) {
         if (speed >= 0) this.speed = speed;
+    }
+
+    @Override
+    public Rectangle getCoreHitbox() {
+        return new Rectangle(x, y, width, height);
+    }
+
+    @Override
+    public Rectangle getGrazeHitbox() {
+        return new Rectangle((x - 10), (y - 10), (width - 20), (height - 20));
+    }
+
+    @Override
+    public void onCollision(Collidable other) {
+        // Base collision handler (boleh di-override oleh subclass yang butuh bereaksi)
     }
 }

@@ -1,6 +1,10 @@
-package com.fathan.frontend;
+package com.fathan.frontend.objects.enemies;
 
-import java.awt.*;
+import com.fathan.frontend.objects.Player;
+import com.fathan.frontend.objects.items.Item;
+import com.fathan.frontend.objects.Collidable;
+import com.badlogic.gdx.graphics.Color;
+
 
 public class Fairy extends Enemy {
     public Fairy(String name, int hp) {
@@ -15,5 +19,12 @@ public class Fairy extends Enemy {
         this.x = x;
         this.y = y;
         this.scoreValue = 500L;
+    }
+
+    @Override
+    public void onCollision(Collidable other) {
+        if (other.getClass() == Player.class){
+            System.out.println("Player touches fairy");
+        }
     }
 }

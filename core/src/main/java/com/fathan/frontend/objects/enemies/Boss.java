@@ -1,4 +1,8 @@
-package com.fathan.frontend;
+package com.fathan.frontend.objects.enemies;
+
+import com.fathan.frontend.objects.Collidable;
+import com.fathan.frontend.objects.Player;
+import com.badlogic.gdx.graphics.Color;
 
 import java.awt.*;
 
@@ -20,5 +24,12 @@ public class Boss extends Enemy {
         this.height = 48;
         this.color = Color.BLUE;
         this.scoreValue = 5000L;
+    }
+
+    @Override
+    public void onCollision(Collidable other) {
+        if (other.getClass() == Player.class){
+            System.out.println("Player touches boss");
+        }
     }
 }

@@ -1,8 +1,15 @@
-package com.fathan.frontend;
+package com.fathan.frontend.objects;
+
+import com.fathan.frontend.objects.enemies.Enemy;
+import com.fathan.frontend.objects.items.Item;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.fathan.frontend.objects.items.ItemType;
+import com.badlogic.gdx.graphics.Color;
 
 import java.awt.*;
 
-public class Player extends GameObject {
+public class    Player extends GameObject {
     private String name;
     private int hp;
     private int power;
@@ -46,7 +53,7 @@ public class Player extends GameObject {
     }
 
     public Player(String name, int hp, int power, int spellCards) {
-        super(280, 40, 32,32, 0, Color.RED);
+        super(280, 40, 32,32, 100, Color.RED);
         this.name = name;
         this.hp = hp;
         this.power = power;
@@ -55,7 +62,7 @@ public class Player extends GameObject {
     }
 
     public Player(int x, int y, String name, int hp, int power, int spellCards) {
-        super(x, y, 32,32, 0, Color.RED);
+        super(x, y, 32,32, 100, Color.RED);
         this.name = name;
         this.hp = hp;
         this.power = power;
@@ -89,9 +96,62 @@ public class Player extends GameObject {
     }
 
     public void collectItem(Item item) {
-        System.out.println(getName() + " collected " + item.getItemType() + "!");
-        if (item.getScoreValue() > 0) {
+        ItemType type = item.getItemTypeEnum();
+        if (type != null) {
+            switch (type) {
+                case POWER -> {
+                    this.power += type.getPowerBonus();
+                    addScore(item.getScoreValue());
+                    System.out.println(this.name + "collected POWER item! Power increased to " + this.power);
+                }
+                case POINT -> {
+                    addScore(item.getScoreValue());
+                    System.out.println(this.name + "collected POINT item!");
+                }
+                case BOMB -> {
+                    this.spellCards += 1;
+                    addScore(item.getScoreValue());
+                    System.out.println(this.name + "collected BOMB item! SpellCards: " + this.spellCards);
+                }
+                case LIFE -> {
+                    this.hp += 20;
+                    addScore(item.getScoreValue());
+                    System.out.println(this.name + "collected LIFE item! HP: " + this.hp);
+                }
+            }
+        } else {
             addScore(item.getScoreValue());
+            System.out.println(name + " collected " + item.getItemType() + "!");
+        }
+    }
+
+    @Override
+    public void update(float delta) {
+        if (Gdx.input != null) {
+            if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+                y += speed * delta;
+            }
+
+            if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+                y -= speed * delta;
+            }
+
+            if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+                x -= speed * delta;
+            }
+
+            if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+                x += speed * delta;
+            }
+
+        }
+    }
+
+    @Override
+    public void onCollision(Collidable other) {
+        if (other.getClass() == Item.class){
+            System.out.println("Player touches items");
+            collectItem((Item) other);
         }
     }
 }

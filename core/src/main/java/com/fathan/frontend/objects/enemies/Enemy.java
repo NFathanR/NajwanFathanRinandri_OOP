@@ -1,7 +1,8 @@
-package com.fathan.frontend;
+package com.fathan.frontend.objects.enemies;
 
 import com.fathan.frontend.objects.GameObject;
 import com.fathan.frontend.objects.Player;
+import com.badlogic.gdx.graphics.Color;
 
 import java.awt.*;
 
