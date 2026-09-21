@@ -5,6 +5,7 @@ import com.fathan.frontend.objects.enemies.Boss;
 import com.fathan.frontend.objects.enemies.Enemy;
 import com.fathan.frontend.objects.enemies.Fairy;
 import com.fathan.frontend.objects.items.Item;
+import com.fathan.frontend.objects.bullets.Bullet;
 
 public class Test {
     public static void main(String[] args) {

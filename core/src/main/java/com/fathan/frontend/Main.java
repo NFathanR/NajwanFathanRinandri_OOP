@@ -11,13 +11,15 @@ import com.fathan.frontend.objects.enemies.Fairy;
 import com.fathan.frontend.objects.items.Item;
 import com.fathan.frontend.objects.items.ItemType;
 
-import java.awt.*;
+
+import java.util.*;
 import java.util.ArrayList;
 import java.util.List;
+import com.badlogic.gdx.Input;
+import java.util.Iterator;
 
 public class Main extends ApplicationAdapter {
     private ShapeRenderer shapeRenderer;
-
     private Player player;
     private Fairy fairy;
     private Boss boss;
@@ -25,15 +27,37 @@ public class Main extends ApplicationAdapter {
     private Item pointItem;
     private List<GameObject> entities;
 
+    public <T extends GameObject> void updateAndClean(List<T> list, float delta, float screenWidth, float screenHeight) {
+        // 1. Dapatkan Iterator<T> dari list yang diberikan.
+        Iterator<T> iterator = list.iterator();
+
+        // 2. Selama masih ada elemen berikutnya (hasNext()):
+        //    a. Ambil elemen saat ini menggunakan next(), simpan ke variabel bertipe T.
+        //    b. Panggil update(delta) pada elemen tersebut.
+        //    c. Jika elemen tersebut isOffScreen(screenWidth, screenHeight) ATAU isDestroyed():
+        //       - Tampilkan pesan: "Removed via Generic Iterator: " + [nama class entity, pakai getClass().getSimpleName()]
+        //       - Hapus elemen ini dari list menggunakan method milik Iterator (BUKAN list.remove()!).
+
+        while (iterator.hasNext()) {
+            T obj = iterator.next();
+            obj.update(delta);
+
+            if (obj.isOffScreen(screenWidth, screenHeight) || obj.isDestroyed()) {
+                System.out.println("Removed via Generic Iterator: " + getClass().getSimpleName());
+                iterator.remove();
+            }
+        }
+    }
+
     @Override
     public void create() {
         shapeRenderer = new ShapeRenderer();
         entities = new ArrayList<>();
 
-        // 1. Player: Red square (stationary) at bottom
+        // 1. Player: Red square (movable with W/A/S/D or Arrows)
         player = new Player(280, 40, "Reimu Hakurei", 100, 15, 3);
 
-        // 2. Fairy: Pink square (stationary, small)
+        // 2. Fairy: Pink square (stationary)
         fairy = new Fairy(150, 380, "Stage 1 Fairy", 20);
 
         // 3. Boss: Blue square (stationary, larger size)
@@ -54,32 +78,71 @@ public class Main extends ApplicationAdapter {
     public void render() {
         float delta = Gdx.graphics.getDeltaTime();
 
-        // Update logic: items move downwards linearly
-        for (GameObject obj : entities) {
-            obj.update(delta);
+        // TODO 1: Jika tombol Z baru saja ditekan, tambahkan bullet baru hasil player.shootBullet() ke dalam list entities.
+        // Clue: Gdx.input.isKeyJustPressed()
+        if (Gdx.input.isKeyPressed(Input.Keys.Z)) {
+            entities.add(player.shootBullet());
         }
 
+        // TODO 2: Panggil updateAndClean(entities, delta, Gdx.graphics.getWidth(), Gdx.graphics.getHeight())
+        // untuk meng-update sekaligus membersihkan entity yang destroyed/off-screen.
+        updateAndClean(entities, delta, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        // 3. Collision detection antar entity (skip entity yang sudah destroyed)
         for (int i = 0; i < entities.size(); i++) {
             for (int j = i + 1; j < entities.size(); j++) {
                 GameObject a = entities.get(i);
                 GameObject b = entities.get(j);
 
-                if (a.getCoreHitbox().overlaps(b.getCoreHitbox())){
+                if (!a.isDestroyed() && !b.isDestroyed()) {
+                    if (a.getCoreHitbox().overlaps(b.getCoreHitbox())) {
+                        a.onCollision(b);
+                        b.onCollision(a);
+                    }
+                }
+            }
+        }
+
+        ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        for (GameObject entity : entities) {
+            // TODO 3: Gunakan if statement untuk mengecek apakah entity belum hancur (!entity.isDestroyed()).
+            // kalo iya, panggil method entity.render(shapeRenderer);
+            if(!entity.isDestroyed()){
+                entity.render(shapeRenderer);
+            }
+        }
+        shapeRenderer.end();
+
+        // 1. Iterative updates on entities list
+        for (GameObject entity : entities) {
+            entity.update(delta);
+        }
+
+        // 2. AABB Collision detection between entities
+        for (int i = 0; i < entities.size(); i++) {
+            for (int j = i + 1; j < entities.size(); j++) {
+                GameObject a = entities.get(i);
+                GameObject b = entities.get(j);
+
+                if (a.getCoreHitbox().overlaps(b.getCoreHitbox())) {
                     a.onCollision(b);
                     b.onCollision(a);
                 }
             }
         }
 
-        // Clear screen
+        // 3. Clear screen
         ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
 
-        // Render filled hitboxes with ShapeRenderer
+        // 4. Render filled hitboxes with ShapeRenderer
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        for (GameObject obj : entities) {
-            obj.render(shapeRenderer);
+        for (GameObject entity : entities) {
+            entity.render(shapeRenderer);
         }
         shapeRenderer.end();
+
     }
 
     @Override
