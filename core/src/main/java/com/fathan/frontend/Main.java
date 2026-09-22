@@ -80,8 +80,10 @@ public class Main extends ApplicationAdapter {
 
         // TODO 1: Jika tombol Z baru saja ditekan, tambahkan bullet baru hasil player.shootBullet() ke dalam list entities.
         // Clue: Gdx.input.isKeyJustPressed()
-        if (Gdx.input.isKeyPressed(Input.Keys.Z)) {
-            entities.add(player.shootBullet());
+        if (Gdx.input != null) {
+            if (Gdx.input.isKeyPressed(Input.Keys.Z)) {
+                entities.add(player.shootBullet());
+            }
         }
 
         // TODO 2: Panggil updateAndClean(entities, delta, Gdx.graphics.getWidth(), Gdx.graphics.getHeight())
@@ -112,34 +114,6 @@ public class Main extends ApplicationAdapter {
             if(!entity.isDestroyed()){
                 entity.render(shapeRenderer);
             }
-        }
-        shapeRenderer.end();
-
-        // 1. Iterative updates on entities list
-        for (GameObject entity : entities) {
-            entity.update(delta);
-        }
-
-        // 2. AABB Collision detection between entities
-        for (int i = 0; i < entities.size(); i++) {
-            for (int j = i + 1; j < entities.size(); j++) {
-                GameObject a = entities.get(i);
-                GameObject b = entities.get(j);
-
-                if (a.getCoreHitbox().overlaps(b.getCoreHitbox())) {
-                    a.onCollision(b);
-                    b.onCollision(a);
-                }
-            }
-        }
-
-        // 3. Clear screen
-        ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
-
-        // 4. Render filled hitboxes with ShapeRenderer
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        for (GameObject entity : entities) {
-            entity.render(shapeRenderer);
         }
         shapeRenderer.end();
 

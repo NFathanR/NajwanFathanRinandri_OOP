@@ -88,6 +88,7 @@ public class Player extends GameObject {
 
     public void collectItem(Item item) {
         ItemType type = item.getItemTypeEnum();
+        if (item.isDestroyed()) return;
         if (type != null) {
             switch (type) {
                 case POWER -> {
@@ -113,36 +114,8 @@ public class Player extends GameObject {
         } else {
             addScore(item.getScoreValue());
             System.out.println(name + " collected " + item.getItemType() + "!");
-
-            if (item.isDestroyed()) return;
-            if (item != null){
-                switch (type) {
-                    case POWER -> {
-                        this.power += type.getPowerBonus();
-                        addScore(item.getScoreValue());
-                        System.out.println(name + " collected POWER item! Power increased to " + power);
-                    }
-                    case POINT -> {
-                        addScore(item.getScoreValue());
-                        System.out.println(name + " collected POINT item!");
-                    }
-                    case BOMB -> {
-                        this.spellCards++;
-                        addScore(item.getScoreValue());
-                        System.out.println(name + " collected BOMB item! SpellCards: " + spellCards);
-                    }
-                    case LIFE -> {
-                        this.hp += 20;
-                        addScore(item.getScoreValue());
-                        System.out.println(name + " collected LIFE item! HP: " + hp);
-                    }
-                }
-            }
-            // Mencegah item diambil dua kali di frame yang sama
-            // ... switch-case type item yang sudah kalian buat sebelumnya ...
-            // TODO: Tandai item ini sebagai destroyed agar nanti dihapus oleh Iterator
-            // Panggil method destroy() milik item di sini!
         }
+        item.destroy();
     }
 
 
