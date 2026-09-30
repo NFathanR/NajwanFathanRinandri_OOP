@@ -21,6 +21,8 @@ public interface ScoreRepository extends JpaRepository<Score, UUID> {
 
     // TODO: buat native query seperti di TP untuk mengambil data Score s dan diurutkan berdasar s.point secara DESCENDING
     @Query("SELECT s FROM Score s ORDER BY s.point DESC")
-    // TODO: buat method "findTopScores" dengan parameter Integer limit menggunakan List yang berisi Score
+    // TODO: buat method "findTopScores" dengan parameter Integer limit menggunakan List yang berisi Scoree
     List<Score> findTopScores(@Param("limit") Integer limit);
+
+    // hi this is here to i can commit
 }
