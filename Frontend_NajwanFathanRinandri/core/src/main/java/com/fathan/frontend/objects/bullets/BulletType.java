@@ -1,4 +1,4 @@
-package com.fathan.frontend.objects;
+package com.fathan.frontend.objects.bullets;
 
 public enum BulletType {
     DANMAKU,

@@ -1,15 +1,13 @@
 package com.fathan.frontend.objects;
 
 import com.fathan.frontend.objects.bullets.Bullet;
+import com.fathan.frontend.objects.bullets.BulletType;
 import com.fathan.frontend.objects.enemies.Enemy;
 import com.fathan.frontend.objects.items.Item;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.fathan.frontend.objects.items.ItemType;
 import com.badlogic.gdx.graphics.Color;
-
-import java.awt.*;
-import java.util.Iterator;
 
 
 public class Player extends GameObject {
@@ -20,7 +18,7 @@ public class Player extends GameObject {
     private long score;
 
     public Player(String name, int hp, int power, int spellCards) {
-        super(280, 40, 32, 32, 200f, Color.RED);
+        super(280, 40, 32, 48, 200f, Color.RED);
         this.name = name;
         this.hp = hp;
         this.power = power;
@@ -29,7 +27,7 @@ public class Player extends GameObject {
     }
 
     public Player(float x, float y, String name, int hp, int power, int spellCards) {
-        super(x, y, 32, 32, 200f, Color.RED);
+        super(x, y, 32, 48, 200f, Color.RED);
         this.name = name;
         this.hp = hp;
         this.power = power;
@@ -39,7 +37,12 @@ public class Player extends GameObject {
 
     @Override
     public void update(float delta) {
-        // Player movement handling (LibGDX input)
+        // TODO 1: panggil update(delta) milik GameObject melalui super.
+        GameObject.update(delta);
+
+        // TODO 2: Siapkan variabel lokal float dx dengan nilai awal 0
+        // (dx = delta x, mencatat perubahan arah horizontal untuk animasi)
+        float dx = delta * x;
         if (Gdx.input != null) {
             if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
                 y += speed * delta;
@@ -49,11 +52,25 @@ public class Player extends GameObject {
             }
             if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
                 x -= speed * delta;
+                // TODO 3: Ganti nilai dx sesuai dengan arahnya.
+                // (Kalau ke kiri, maka dx ke mana ya?)
             }
             if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
                 x += speed * delta;
+                // TODO 4: Ganti nilai dx sesuai dengan arahnya.
+                // (Kalau ke kanan, maka dx ke mana ya?)
             }
         }
+
+        // TODO 5: Panggil updateAnimationState(dx)
+
+    }
+
+
+    public Bullet shootBullet() {
+        int damage = 10 + power;
+        System.out.println(name + " shoots bullet dealing " + damage + " DMG!");
+        return new Bullet(x + width / 2 - 4, y + height, BulletType.AMULET, damage);
     }
 
     public void moveUp(float delta) { this.y += speed * delta; }
@@ -63,32 +80,25 @@ public class Player extends GameObject {
 
     @Override
     public void onCollision(Collidable other) {
-        if (other instanceof Item) {
+        if (other instanceof Item item) {
             System.out.println("Player touches items");
-            collectItem((Item) other);
+            collectItem(item);
         }
     }
 
     public void shoot(Enemy target) {
-        int damage = 10 + getPower();
-        System.out.println(getName() + " shoots " + target.getName() + " dealing " + damage + " DMG!");
+        int damage = 10 + power;
+        System.out.println(name + " shoots " + target.getName() + " dealing " + damage + " DMG!");
         boolean defeated = target.takeDamage(damage);
         if (defeated) {
             addScore(target.getScoreValue());
         }
     }
 
-    public Bullet shootBullet() {
-        int damage = 10 + power;
-        System.out.println(name + " shoots bullet dealing " + damage + " DMG!");
-        // TODO: kembalikan Bullet baru, diposisikan di tengah atas Player
-        // (x + width/2 - 4, y + height), bertipe BulletType.AMULET, dengan damage di atas
-        return new Bullet(x + width/2 - 4, y + height, BulletType.AMULET, damage);
-    }
-
     public void collectItem(Item item) {
-        ItemType type = item.getItemTypeEnum();
         if (item.isDestroyed()) return;
+
+        ItemType type = item.getItemTypeEnum();
         if (type != null) {
             switch (type) {
                 case POWER -> {
@@ -115,15 +125,18 @@ public class Player extends GameObject {
             addScore(item.getScoreValue());
             System.out.println(name + " collected " + item.getItemType() + "!");
         }
-        item.destroy();
+
+        item.destroy(); // Destroy item after collection so it gets safely removed by Iterator
     }
 
-
     public void takeDamage(int damage) {
-        setHp(getHp() - damage);
-        System.out.println(getName() + " took " + damage + " damage! Remaining HP: " + getHp());
-        if (getHp() == 0) {
-            System.out.println(getName() + " was defeated (Pichuun~)! ");
+        this.hp -= damage;
+        if (this.hp < 0) {
+            this.hp = 0;
+        }
+        System.out.println(name + " took " + damage + " damage! Remaining HP: " + this.hp);
+        if (this.hp == 0) {
+            System.out.println(name + " was defeated (Pichuun~)! ");
         }
     }
 
@@ -135,7 +148,7 @@ public class Player extends GameObject {
     }
 
     public boolean isAlive() {
-        return getHp() > 0;
+        return this.hp > 0;
     }
 
     // Encapsulation getters and setters

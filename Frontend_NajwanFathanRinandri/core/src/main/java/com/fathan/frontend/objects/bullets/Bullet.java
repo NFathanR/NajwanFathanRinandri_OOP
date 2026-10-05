@@ -1,6 +1,5 @@
 package com.fathan.frontend.objects.bullets;
 
-import com.fathan.frontend.objects.BulletType;
 import com.badlogic.gdx.graphics.Color;
 import com.fathan.frontend.objects.GameObject;
 import com.fathan.frontend.objects.Collidable;
