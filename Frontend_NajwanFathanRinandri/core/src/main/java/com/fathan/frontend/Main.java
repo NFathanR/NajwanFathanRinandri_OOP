@@ -44,7 +44,7 @@ public class Main extends ApplicationAdapter {
         // TODO 2:
         // Inisialisasi list fairy dan entities sebagai ArrayList kosong.
         List<Fairy> fairy = new ArrayList<>();
-        List<GameObject> entities = new ArrayList<>();
+        entities = new ArrayList<>();
 
         // TODO 3:
         // Sebelum membuat entitas, ambil instance AssetManager dan panggil init().
@@ -54,12 +54,12 @@ public class Main extends ApplicationAdapter {
         // Ubah pembuatan semua entitas! Ikuti tabel dan buat Player, Fairy, Boss, dan Item
         // agar memakai metode EntityFactory yang benar.
         // Untuk kedua Fairy, masukkan mereka ke list fairy menggunakan add(...).
-        Player player = EntityFactory.createPlayer(280, 40, "Reimu Hakurei", 100, 15, 3);
+        player = EntityFactory.createPlayer(280, 40, "Reimu Hakurei", 100, 15, 3);
         fairy.add(EntityFactory.createFairy(150, 380, "Red Fairy", 20));
         fairy.add(EntityFactory.createFairy(250, 380, "Blue Fairy", 20, "fairy_idle_blue"));
-        Boss boss = EntityFactory.createBoss(380, 400, "Rumia", 150);
-        Item powerItem = EntityFactory.createItem(200, 450, ItemType.POWER);
-        Item pointItem = EntityFactory.createItem(320, 480, ItemType.POINT);
+        boss = EntityFactory.createBoss(380, 400, "Rumia", 150);
+        powerItem = EntityFactory.createItem(200, 450, ItemType.POWER);
+        pointItem = EntityFactory.createItem(320, 480, ItemType.POINT);
 
         // TODO 5:
         // Masukkan semua objek yang baru saja kita buat ke dalam entities.
@@ -67,11 +67,14 @@ public class Main extends ApplicationAdapter {
         entities.add(boss);
         entities.add(pointItem);
         entities.add(powerItem);
+        entities.addAll(fairy);
     }
 
 
     @Override
     public void render() {
+        batch = new SpriteBatch();
+        shapeRenderer = new ShapeRenderer();
         float delta = Gdx.graphics.getDeltaTime();
 
         // 1. Check Player Bullet shooting input (Key Z)

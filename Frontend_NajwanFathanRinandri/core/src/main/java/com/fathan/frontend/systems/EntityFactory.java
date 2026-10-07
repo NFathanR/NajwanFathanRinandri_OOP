@@ -62,4 +62,30 @@ public class EntityFactory {
         bullet.setSprite(sprite);
         return bullet;
     }
+
+    public static Bullet createPlayerBullet(float x, float y, int damage, String spriteKey) {
+        // TODO 1: Ambil TextureRegion untuk spriteKey melalui getTextureRegion dari
+        // AssetManager.getInstance(), lalu masukkan ke variabel lokal `sprite`.
+        AssetManager sprite = AssetManager.getInstance();
+
+        // TODO 2:
+        // Buat Bullet baru dengan x, y, BulletType.AMULET, dan damage;
+        // simpan pada variabel lokal `bullet`.
+        Bullet bullet = new Bullet(x, y, BulletType.AMULET, damage);
+
+        // TODO 3:
+        // Pasang sprite pada bullet melalui bullet.setSprite(...).
+        bullet.setSprite(sprite.getTextureRegion(spriteKey));
+
+        // TODO 4:
+        // Kembalikan bullet.
+        return bullet;
+    }
+
+    public static Bullet createPlayerBullet(float x, float y, int damage) {
+        // TODO 5:
+        // Kembalikan hasil call function createPlayerBullet sebelumnya tapi dengan parameter spriteKey diganti dengan "bullet_amulet".
+        return createPlayerBullet(x, y, damage, "bullet_amulet");
+    }
+
 }

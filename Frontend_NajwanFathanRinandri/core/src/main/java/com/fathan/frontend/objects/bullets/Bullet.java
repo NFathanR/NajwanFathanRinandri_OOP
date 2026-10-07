@@ -10,14 +10,14 @@ public class Bullet extends GameObject {
     private int damage;
 
     public Bullet(float x, float y, BulletType bulletType, int damage) {
-        super(x, y, 8, 16, 400f, Color.YELLOW);
+        super(x, y, 16, 16, 400f, Color.YELLOW);
         // TODO: inisialisasi bulletType dan damage dari parameter
         this.bulletType = bulletType;
         this.damage = damage;
     }
 
     public Bullet(float x, float y, float speed, BulletType bulletType, int damage) {
-        super(x, y, 8, 16, speed, Color.YELLOW);
+        super(x, y, 16, 16, speed, Color.YELLOW);
         // TODO: inisialisasi bulletType dan damage dari parameter
         this.bulletType = bulletType;
         this.damage = damage;

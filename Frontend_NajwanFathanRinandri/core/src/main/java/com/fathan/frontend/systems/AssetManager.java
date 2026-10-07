@@ -153,28 +153,38 @@ public class AssetManager {
         // Tip 2: Di antara .png yang didaftarkan di bawah. Mana yang Spritesheet dan isi gambarnya adalah *animasi* dan mana yang isi gambarnya *diam saja*? Artinya apa?
 
         // TODO: Mendaftarkan animasi idle Reimu Hakurei (player.png: ukuran 32x48 per sel)
-        registerAnimationFromSheet("player_idle", "player.png", 32, 48, 0, 0, 4, 0.125f, Animation.PlayMode.LOOP);
-        registerAnimationFromSheet("player_left", "player.png", 32, 48, 1, 0, 4, 0.12f, Animation.PlayMode.LOOP);
-        registerAnimationFromSheet("player_right", "player.png", 32, 48, 2, 0, 4, 0.12f, Animation.PlayMode.LOOP);
-
+        registerAnimationFromSheet("player_idle", "player.png", 32, 48, 0, 4, 0.12f);
+        registerAnimationFromSheet("player_idle", "player.png", 32, 48, 0, 4, 0.12f);
 
         // TODO: Mendaftarkan animasi idle Boss (rumia.png: ukuran 64x64 per sel)
-        registerAnimationFromSheet("boss_idle", "rumia.png", 64, 64, 0, 0, 4, 0.2f, Animation.PlayMode.LOOP);
-        registerAnimationFromSheet("boss_left", "rumia.png", 64, 64, 1, 0, 4, 0.15f, Animation.PlayMode.REVERSED);
-        registerAnimationFromSheet("boss_right", "rumia.png", 64, 64, 2, 0, 4, 0.15f, Animation.PlayMode.NORMAL);
+        registerAnimationFromSheet("boss_idle", "rumia.png", 64, 64, 0, 4, 0.15f);
 
         // TODO: Mendaftarkan animasi Fairy
-        registerAnimationFromSheet("fairy_idle_red", "fairy.png", 32, 32, 1, 0, 8, 0.125f, Animation.PlayMode.LOOP);
-        registerAnimationFromSheet("fairy_idle_blue", "fairy.png", 32, 32, 0, 0, 8, 0.125f, Animation.PlayMode.LOOP);
+        registerAnimationFromSheet("fairy_idle", "fairy.png", 32, 32, 0, 4, 0.12f);
 
         // TODO: Mendaftarkan peluru musuh (bullets_small.png: petak 16x16 baris 2 kolom 3)
-        registerRegionFromSheet("bullet_danmaku", "bullets_small.png", 16, 16, 2, 3);
+        registerRegionFromSheet("bullet_danmaku", "bullet_small.png", 16,16, 2, 3);
 
         // TODO: Mendaftarkan 4 variasi Item (items.png: ukuran 16x16 per petak)
-        registerRegionFromSheet("item_power", "items.png", 16, 16, 0, 1);
-        registerRegionFromSheet("item_point", "items.png", 16, 16, 0, 2);
+        registerRegionFromSheet("item_power", "items.png", 16, 16, 0, 0);
+        registerRegionFromSheet("item_point", "items.png", 16, 16, 0, 1);
         registerRegionFromSheet("item_bomb", "items.png", 16, 16, 0, 3);
-        registerRegionFromSheet("item_life", "items.png", 16, 16, 0, 4);
+        registerRegionFromSheet("item_life", "items.png", 16, 16, 0, 5);
+
+        registerAnimationFromSheet("player_idle", "player.png",32, 48, 0, 0, 8, 0.125f, Animation.PlayMode.LOOP);
+        registerAnimationFromSheet("player_left", "player.png",32, 48, 1, 0, 4, 0.12f, Animation.PlayMode.LOOP);
+        registerAnimationFromSheet("player_right", "player.png",32, 48, 2, 0, 4, 0.12f, Animation.PlayMode.LOOP);
+
+        registerAnimationFromSheet("boss_idle", "rumia.png", 64, 64, 0,0, 4, 0.2f, Animation.PlayMode.LOOP);
+        registerAnimationFromSheet("boss_left", "rumia.png", 64, 64, 1,0, 4, 0.2f, Animation.PlayMode.REVERSED);
+        registerAnimationFromSheet("boss_right", "rumia.png", 64, 64, 2,0, 4, 0.2f, Animation.PlayMode.LOOP);
+
+        registerAnimationFromSheet("fairy_idle_red", "fairy.png", 32, 32, 1,0, 8, 0.125f, Animation.PlayMode.LOOP);
+        registerAnimationFromSheet("fairy_idle_blue", "fairy.png", 32, 32, 0,0, 8, 0.125f, Animation.PlayMode.LOOP);
+
+        // TODO: Tambahkan Registrasi Region sesuai tabel
+        registerRegionFromSheet("bullet_amulet", "amulet_reimu.png", 16, 16, 0, 0);
+        registerRegionFromSheet("bullet_amulet_homing", "amulet_reimu.png", 16, 16, 1, 0);
     }
 
     public void dispose() {

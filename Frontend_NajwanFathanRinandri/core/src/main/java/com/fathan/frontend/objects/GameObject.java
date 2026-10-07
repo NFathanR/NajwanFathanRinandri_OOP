@@ -31,8 +31,7 @@ public abstract class GameObject implements Collidable {
     }
 
     public void update(float delta) {
-        // TODO: Tambah waktu internal objek agar animasi bergerak maju
-        stateTime += delta;
+        // Base update method
     }
 
     public void render(ShapeRenderer shapeRenderer) {
@@ -53,32 +52,6 @@ public abstract class GameObject implements Collidable {
         }
     }
 
-
-    public boolean isDestroyed() {
-        // TODO: kembalikan true jika object TIDAK aktif (active == false)
-        if (!active){
-            return true;
-        }
-        return false;
-    }
-
-    public void destroy() {
-        // TODO: tandai object ini sebagai tidak aktif
-        this.active = false;
-    }
-
-    public boolean isOffScreen(float screenWidth, float screenHeight) {
-        // TODO: kembalikan true jika posisi x atau y sudah keluar dari batas layar
-        // Gunakan margin toleransi 50px di setiap sisi, supaya objek yang baru
-        // sedikit melewati tepi layar tidak langsung dianggap hilang.
-        float margin = 50f;
-
-        return (x < -margin) ||
-            (x > screenWidth + margin) ||
-            (y < -margin) ||
-            (y > screenHeight + margin);
-    }
-
     @Override
     public Rectangle getCoreHitbox() {
         return new Rectangle(x, y, width, height);
@@ -92,7 +65,19 @@ public abstract class GameObject implements Collidable {
 
     @Override
     public void onCollision(Collidable other) {
-        // Base collision handler (can be overridden by subclasses)
+        // Base collision handler
+    }
+
+    public boolean isDestroyed() {
+        return !active;
+    }
+
+    public void destroy() {
+        this.active = false;
+    }
+
+    public boolean isOffScreen(float screenWidth, float screenHeight) {
+        return (x < -50 || x > screenWidth + 50 || y < -50 || y > screenHeight + 50);
     }
 
     // Encapsulation: Getters and Setters
@@ -119,10 +104,21 @@ public abstract class GameObject implements Collidable {
 
     public Color getColor() { return color; }
     public void setColor(Color color) { this.color = color; }
+    public boolean isActive() { return active; }
 
-    public TextureRegion getSprite() { return sprite; }
-    public void setSprite(TextureRegion sprite) { this.sprite = sprite;}
+    public TextureRegion getSprite() {
+        return sprite;
+    }
 
-    public Animation<TextureRegion> getAnimation() { return animation; }
-    public void setAnimation(Animation<TextureRegion> animation) { this.animation = animation;}
+    public void setSprite(TextureRegion sprite) {
+        this.sprite = sprite;
+    }
+
+    public Animation<TextureRegion> getAnimation() {
+        return animation;
+    }
+
+    public void setAnimation(Animation<TextureRegion> animation) {
+        this.animation = animation;
+    }
 }
