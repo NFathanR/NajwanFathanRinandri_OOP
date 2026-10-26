@@ -2,6 +2,7 @@ package com.fathan.frontend.objects;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 import com.fathan.frontend.objects.bullets.Bullet;
 import com.fathan.frontend.objects.bullets.BulletType;
 import com.fathan.frontend.objects.enemies.Enemy;
@@ -12,6 +13,7 @@ import com.fathan.frontend.objects.items.ItemType;
 import com.badlogic.gdx.graphics.Color;
 import com.fathan.frontend.systems.AssetManager;
 import com.fathan.frontend.systems.EntityFactory;
+import com.fathan.frontend.objects.patterns.ShootingPattern;
 
 
 public class Player extends GameObject {
@@ -20,7 +22,8 @@ public class Player extends GameObject {
     private int power;
     private int spellCards;
     private long score;
-    private int currentDir;
+    private int currentDir = 0;
+    private ShootingPattern shootingPattern;
 
     public Player(String name, int hp, int power, int spellCards) {
         super(280, 40, 32, 48, 200f, Color.RED);
@@ -127,15 +130,18 @@ public class Player extends GameObject {
         }
     }
 
+    public void shootBullet(BulletManager bulletManager) {
+        // - Jika bulletManager bernilai null, hentikan eksekusi
+        if (bulletManager == null) return;
+        int damage = power + 10;
+        // - Jika shootingPattern tidak null, panggil execute() pada posisi moncong player (x + width / 2f - 8f, y + height)
+        // - Jika shootingPattern bernilai null, panggil bulletManager.spawnPlayerBullet() secara langsung
 
-    public Bullet shootBullet() {
-        int damage = 10 + power;
-        System.out.println(name + " shoots bullet dealing " + damage + " DMG!");
-
-        // TODO: Kembalikan Bullet menggunakan EntityFactory
-        // dengan rumus x, y sesuai dengan implementasi sebelumnya.
-
-        return EntityFactory.createPlayerBullet(x + width / 2 - 4, y + height, damage, "bullet_amulet");
+        if (shootingPattern != null){
+            shootingPattern.execute(x + width / 2f - 8f, y + height, bulletManager, true);
+        } else {
+            bulletManager.spawnPlayerBullet(x, y, 400f, 400f, damage);
+        }
     }
 
     public void moveUp(float delta) { this.y += speed * delta; }
@@ -212,6 +218,23 @@ public class Player extends GameObject {
         }
     }
 
+    @Override
+    public Rectangle getCoreHitbox() {
+        // TODO: Kembalikan objek Rectangle baru berukuran 8x8 yang berpusat tepat di tengah sprite:
+        // - koordinat X: x + (width / 2f) - 4f
+        // - koordinat Y: y + (height / 2f) - 4f
+        // - lebar: 8f, tinggi: 8f
+        return new Rectangle(x + (width / 2f) - 4f, y + (height / 2f) - 4f, 8f, 8f);
+    }
+
+    @Override
+    public Rectangle getGrazeHitbox() {
+        // TODO: Kembalikan objek Rectangle baru dengan koordinat posisi (x, y)
+        //       dan ukuran seluas sprite visual karakter (width, height)
+        return new Rectangle(x, y, width, height);
+    }
+
+
     public boolean isAlive() {
         return this.hp > 0;
     }
@@ -230,4 +253,7 @@ public class Player extends GameObject {
     public void setSpellCards(int spellCards) { this.spellCards = spellCards; }
 
     public long getScore() { return score; }
+
+    public ShootingPattern getShootingPattern() {return shootingPattern; }
+    public void setShootingPattern(ShootingPattern shootingPattern) { this.shootingPattern = shootingPattern; }
 }

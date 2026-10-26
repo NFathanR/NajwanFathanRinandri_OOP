@@ -5,6 +5,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.fathan.frontend.objects.BulletManager;
+import com.fathan.frontend.objects.CollisionReferee;
 import com.fathan.frontend.objects.GameObject;
 import com.fathan.frontend.objects.Player;
 import com.fathan.frontend.objects.enemies.Boss;
@@ -32,9 +34,19 @@ public class Main extends ApplicationAdapter {
     private Item pointItem;
     private List<GameObject> entities;
     private SpriteBatch batch;
+    // TODO: Buat field private untuk menyimpan BulletManager
+    private BulletManager bulletManager;
+    // TODO: Buat field private untuk menyimpan CollisionReferee
+    private CollisionReferee collisionReferee;
+    private float enemyShootTimer = 0f;
 
     @Override
     public void create() {
+        // TODO: instanceiasi BulletManager baru
+        bulletManager = new BulletManager();
+        // TODO: instanceiasi CollisionReferee baru
+        collisionReferee = new CollisionReferee();
+
         // TODO 1:
         // Pada inisialisasi renderer, buat SpriteBatch dan simpan ke batch.
         // Hint LibGDX: new SpriteBatch()
@@ -70,6 +82,13 @@ public class Main extends ApplicationAdapter {
         entities.addAll(fairy);
     }
 
+    private void updateEnemyScheduler(float delta) {
+        enemyShootTimer += delta;
+        if (enemyShootTimer >= 1.5f) {
+            boss.shootBullet(bulletManager);
+            enemyShootTimer = 0f;
+        }
+    }
 
     @Override
     public void render() {
@@ -131,10 +150,11 @@ public class Main extends ApplicationAdapter {
 
             if (entity.isOffScreen(screenWidth, screenHeight) || entity.isDestroyed()) {
                 System.out.println("Removed via Generic Iterator: " + entity.getClass().getSimpleName());
-                iterator.remove(); // Safe removal using Iterator!
+                iterator.remove();
             }
         }
     }
+
 
     @Override
     public void dispose() {
