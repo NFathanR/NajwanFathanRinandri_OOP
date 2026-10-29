@@ -96,30 +96,48 @@ public class Main extends ApplicationAdapter {
         shapeRenderer = new ShapeRenderer();
         float delta = Gdx.graphics.getDeltaTime();
 
-        // 1. Check Player Bullet shooting input (Key Z)
-        if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
-            entities.add(player.shootBullet());
+        // TODO: Buat input player. Jika tombol Z ditekan panggil
+        // player.shootBullet(bulletManager);
+        if(Gdx.input.isKeyJustPressed(Input.Keys.Z) || Gdx.input.isKeyJustPressed(Input.Keys.X)){
+            player.shootBullet(bulletManager);
         }
 
-        // 2. Generic update & safe removal of off-screen/destroyed entities using non-static instance method
+        // TODO: Scheduler tembakan berkala Bos Rumia
+        updateEnemyScheduler(delta);
+
+        // TODO: Generic update & clean untuk entitas standar (Player, Enemy, Item)
         updateAndClean(entities, delta, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        // 3. Collision detection between active entities
+        // TODO: Update dan daur ulang Object Pool
+        bulletManager.update(delta, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        collisionReferee.resolveCollisions(player, entities, bulletManager);
+        ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
+
+        for (GameObject obj : entities) {
+            obj.update(delta);
+        }
+
         for (int i = 0; i < entities.size(); i++) {
             for (int j = i + 1; j < entities.size(); j++) {
                 GameObject a = entities.get(i);
                 GameObject b = entities.get(j);
 
-                if (!a.isDestroyed() && !b.isDestroyed()) {
-                    if (a.getCoreHitbox().overlaps(b.getCoreHitbox())) {
-                        a.onCollision(b);
-                        b.onCollision(a);
-                    }
+                // TODO: Cek apakah getCoreHitbox() milik a dan b saling overlap (gunakan method .overlaps() milik Rectangle)
+                // TODO: Panggil a.onCollision(b) dan b.onCollision(a)
+                if(a.getCoreHitbox().overlaps(b.getCoreHitbox())) {
+                    a.onCollision(b);
+                    b.onCollision(a);
                 }
             }
         }
 
-        // 4. Clear screen
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        for (GameObject entity : entities) {
+            if(!entity.isDestroyed()) {
+                entity.render(shapeRenderer);
+            }
+        }
+        shapeRenderer.end();
         ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
 
         batch.begin();
@@ -129,16 +147,9 @@ public class Main extends ApplicationAdapter {
                 entity.render(batch);
             }
         }
+        bulletManager.render(batch);
         batch.end();
 
-        // 5. Render filled hitboxes with ShapeRenderer
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        for (GameObject entity : entities) {
-            if (!entity.isDestroyed()) {
-                entity.render(shapeRenderer);
-            }
-        }
-        shapeRenderer.end();
     }
 
     // Non-static (Instance) Generic Method with Bounded Type Parameter <T extends GameObject>
