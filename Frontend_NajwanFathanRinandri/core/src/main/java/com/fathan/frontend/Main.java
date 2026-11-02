@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.fathan.frontend.commands.InputHandler;
 import com.fathan.frontend.objects.BulletManager;
 import com.fathan.frontend.objects.CollisionReferee;
 import com.fathan.frontend.objects.GameObject;
@@ -21,6 +22,7 @@ import java.util.List;
 import com.badlogic.gdx.Input;
 import com.fathan.frontend.systems.AssetManager;
 import com.fathan.frontend.systems.EntityFactory;
+import com.fathan.frontend.ui.GameHUD;
 
 import java.util.Iterator;
 
@@ -39,47 +41,39 @@ public class Main extends ApplicationAdapter {
     // TODO: Buat field private untuk menyimpan CollisionReferee
     private CollisionReferee collisionReferee;
     private float enemyShootTimer = 0f;
+    private InputHandler inputHandler;
+    private GameHUD gameHUD;
 
     @Override
     public void create() {
-        // TODO: instanceiasi BulletManager baru
-        bulletManager = new BulletManager();
-        // TODO: instanceiasi CollisionReferee baru
-        collisionReferee = new CollisionReferee();
-
-        // TODO 1:
-        // Pada inisialisasi renderer, buat SpriteBatch dan simpan ke batch.
-        // Hint LibGDX: new SpriteBatch()
-        batch = new SpriteBatch();
-
-
-        // TODO 2:
-        // Inisialisasi list fairy dan entities sebagai ArrayList kosong.
         List<Fairy> fairy = new ArrayList<>();
+
+        batch = new SpriteBatch();
+        fairy = new ArrayList<>();
         entities = new ArrayList<>();
+        bulletManager = new BulletManager();
+        collisionReferee = new CollisionReferee();
+        inputHandler = new InputHandler();
+        gameHUD = new GameHUD();
 
         // TODO 3:
         // Sebelum membuat entitas, ambil instance AssetManager dan panggil init().
         AssetManager.getInstance().init();
 
-        // TODO 4:
-        // Ubah pembuatan semua entitas! Ikuti tabel dan buat Player, Fairy, Boss, dan Item
-        // agar memakai metode EntityFactory yang benar.
-        // Untuk kedua Fairy, masukkan mereka ke list fairy menggunakan add(...).
-        player = EntityFactory.createPlayer(280, 40, "Reimu Hakurei", 100, 15, 3);
+        player = EntityFactory.createPlayer(200, 50, "Reimu Hakurei", 100, 15, 3);
         fairy.add(EntityFactory.createFairy(150, 380, "Red Fairy", 20));
         fairy.add(EntityFactory.createFairy(250, 380, "Blue Fairy", 20, "fairy_idle_blue"));
-        boss = EntityFactory.createBoss(380, 400, "Rumia", 150);
-        powerItem = EntityFactory.createItem(200, 450, ItemType.POWER);
-        pointItem = EntityFactory.createItem(320, 480, ItemType.POINT);
-
-        // TODO 5:
-        // Masukkan semua objek yang baru saja kita buat ke dalam entities.
+        boss = EntityFactory.createBoss(250, 400, "Rumia", 150);
+        powerItem = EntityFactory.createItem(180, 450, ItemType.POWER);
+        pointItem = EntityFactory.createItem(220, 480, ItemType.POINT);
+        player.registerObserver(gameHUD);
+        
         entities.add(player);
-        entities.add(boss);
-        entities.add(pointItem);
-        entities.add(powerItem);
         entities.addAll(fairy);
+        entities.add(boss);
+        entities.add(powerItem);
+        entities.add(pointItem);
+        inputHandler.setEntities(entities);
     }
 
     private void updateEnemyScheduler(float delta) {
@@ -89,6 +83,27 @@ public class Main extends ApplicationAdapter {
             enemyShootTimer = 0f;
         }
     }
+    private void restartGame() {
+        System.out.println("[Main] Restarting game...");
+        entities.clear();
+        bulletManager.clearEnemyBullets();
+        bulletManager.clearPlayerBullets();
+        entities.add(player);
+        player.resetGame();
+
+        fairy.clear();
+        fairy.add(EntityFactory.createFairy(150, 380, "Red Fairy", 20));
+        fairy.add(EntityFactory.createFairy(250, 380, "Blue Fairy", 20, "fairy_idle_blue"));
+        boss = EntityFactory.createBoss(250, 400, "Rumia", 150);
+        powerItem = EntityFactory.createItem(180, 450, ItemType.POWER);
+        pointItem = EntityFactory.createItem(220, 480, ItemType.POINT);
+
+        entities.addAll(fairy);
+        entities.add(boss);
+        entities.add(powerItem);
+        entities.add(pointItem);
+    }
+
 
     @Override
     public void render() {

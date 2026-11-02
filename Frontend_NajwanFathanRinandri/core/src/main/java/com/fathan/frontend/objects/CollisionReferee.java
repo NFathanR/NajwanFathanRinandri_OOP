@@ -78,23 +78,32 @@ public class CollisionReferee {
         //         * Tandai bullet sudah di-graze.
         //         * Berikan bonus skor graze ke pemain: player.addScore(50)
 
-        for (Bullet bullet : bulletManager.getActiveEnemyBullets()){
-            if (bullet.isDestroyed()){
-                continue;
-            }
+        for (Bullet bullet : bulletManager.getActiveEnemyBullets()) {
+            if (bullet.isDestroyed()) continue;
 
-            if(!player.isDestroyed()){
+            if (!player.isDestroyed()) {
+                // Priority A: Direct Core Hitbox Collision (Damage & Life Loss)
                 if (bullet.getCoreHitbox().overlaps(player.getCoreHitbox())) {
-                    player.takeDamage(bullet.getDamage());
-                    bullet.destroy();
+                    // TODO 1: Bungkus isi blok ini dengan pengecekan `if (!player.isInvulnerable())`,
+                    if (!player.isInvulnerable()) {
+                        System.out.println("[CollisionReferee] CORE HIT! Enemy Bullet hit " + player.getName() + " for " + bullet.getDamage() + " DMG!");
+                    }
+                    // TODO 2: Ganti `player.takeDamage(bullet.getDamage())` menjadi `player.takeDamage(100, bulletManager, entities)`
+                    bullet.destroy(); // Mark bullet for recycling by BulletManager
+                    player.takeDamage(100, bulletManager, entities);
+                    // TODO 3: Tambahkan `break` di akhir!
+                    break;
                 }
-
-                if (!bullet.hasBeenGrazed() && bullet.getCoreHitbox().overlaps(player.getGrazeHitbox())){
+                // Priority B: Graze Hitbox Collision (Passes close to player without hitting core)
+                else if (!bullet.hasBeenGrazed() && bullet.getCoreHitbox().overlaps(player.getGrazeHitbox())) {
                     bullet.setGrazed(true);
-                    player.addScore(50);
+                    // TODO 4: Ganti player.addScore(50) menjadi pemanggilan metode addGraze() milik player
+                    System.out.println("[CollisionReferee] GRAZE! " + player.getName() + " grazed an enemy bullet (+50 pts)!");
+                    player.addGraze();
                 }
             }
         }
+
 
         // TODO: Kode Soal 5
         //
@@ -125,9 +134,14 @@ public class CollisionReferee {
                 }
             }
 
-            if(entity instanceof Enemy enemy){
-                if (player.getCoreHitbox().overlaps(enemy.getCoreHitbox())){
-                    player.takeDamage(10);
+            else if (entity instanceof Enemy enemy) {
+                if (player.getCoreHitbox().overlaps(enemy.getCoreHitbox())) {
+                    // TODO 5: Bungkus isi blok ini dengan `if (!player.isInvulnerable())`
+                    if (!player.isInvulnerable()) {
+                        System.out.println("[CollisionReferee] CORE COLLISION! Player collided with " + enemy.getName() + "!");
+                    }
+                    // TODO 6: ganti `player.takeDamage(10)` menjadi `player.takeDamage(100, bulletManager, entities)`
+                    player.takeDamage(100, bulletManager, entities);
                 }
             }
         }

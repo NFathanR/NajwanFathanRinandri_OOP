@@ -1,6 +1,8 @@
 package com.fathan.frontend.objects;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.fathan.frontend.objects.bullets.Bullet;
+import com.fathan.frontend.objects.items.Item;
+import com.fathan.frontend.objects.items.ItemType;
 import com.fathan.frontend.systems.EntityFactory;
 
 import java.util.*;
@@ -63,6 +65,48 @@ public class BulletManager {
             activeEnemyBullets.add(bullet);
         }
         return bullet;
+    }
+
+    public void clearEnemyBullets(List<GameObject> entities) {
+        // TODO:
+        // 1. Buat Iterator<Bullet> untuk menelusuri activeEnemyBullets secara aman.
+        Iterator<Bullet> eIter = activeEnemyBullets.iterator();
+        // 2. Selama masih ada elemen berikutnya di iterator:
+        //    - Ambil objek Bullet saat ini.
+        //    - Jika parameter entities tidak bernilai null:
+        //      * Buat objek Item bertipe ItemType.POINT menggunakan EntityFactory.createItem(...)
+        //        pada posisi (bullet.getX(), bullet.getY()), lalu tambahkan ke dalam list entities.
+        //    - Tandai bullet sebagai hancur (bullet.destroy()).
+        //    - Hapus bullet dari activeEnemyBullets menggunakan remove() pada iterator di step 1.
+        //    - Kembalikan bullet ke dalam antrean enemyBulletPool menggunakan offer().
+        while (eIter.hasNext()) {
+            Bullet bullet = eIter.next();
+
+            if (entities != null) {
+                Item point = EntityFactory.createItem(bullet.getX(), bullet.getY(), ItemType.POINT);
+                entities.add(point);
+            }
+
+            bullet.destroy();
+            eIter.remove();
+            enemyBulletPool.offer(bullet);
+        }
+        // TIP: Lihat rough outlinenya di `clearPlayerBullets()` di bawah
+    }
+
+    public void clearEnemyBullets() {
+        clearEnemyBullets(null);
+    }
+
+    // Pembersihan seluruh peluru pemain saat restart permainan (Copy-Paste):
+    public void clearPlayerBullets() {
+        Iterator<Bullet> pIter = activePlayerBullets.iterator();
+        while (pIter.hasNext()) {
+            Bullet bullet = pIter.next();
+            bullet.destroy();
+            pIter.remove();
+            playerBulletPool.offer(bullet);
+        }
     }
 
     public void update(float delta, float screenWidth, float screenHeight) {
