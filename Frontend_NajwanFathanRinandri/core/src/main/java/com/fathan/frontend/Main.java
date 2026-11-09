@@ -3,11 +3,13 @@ package com.fathan.frontend;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.fathan.frontend.commands.Command;
 import com.fathan.frontend.commands.InputHandler;
-import com.fathan.frontend.objects.BulletManager;
-import com.fathan.frontend.objects.CollisionReferee;
+import com.fathan.frontend.objects.patterns.entityStrategy.TargetPointMovement;
+import com.fathan.frontend.objects.patterns.shootingStrategy.SpreadShot;
+import com.fathan.frontend.systems.BulletManager;
+import com.fathan.frontend.systems.CollisionReferee;
 import com.fathan.frontend.objects.GameObject;
 import com.fathan.frontend.objects.Player;
 import com.fathan.frontend.objects.enemies.Boss;
@@ -16,7 +18,6 @@ import com.fathan.frontend.objects.items.Item;
 import com.fathan.frontend.objects.items.ItemType;
 
 
-import java.util.*;
 import java.util.ArrayList;
 import java.util.List;
 import com.badlogic.gdx.Input;
@@ -27,27 +28,24 @@ import com.fathan.frontend.ui.GameHUD;
 import java.util.Iterator;
 
 public class Main extends ApplicationAdapter {
-    private ShapeRenderer shapeRenderer;
-
+    private SpriteBatch batch;
     private Player player;
-    private Fairy fairy;
+    private List<Fairy> fairy;
     private Boss boss;
     private Item powerItem;
     private Item pointItem;
     private List<GameObject> entities;
-    private SpriteBatch batch;
-    // TODO: Buat field private untuk menyimpan BulletManager
+
     private BulletManager bulletManager;
-    // TODO: Buat field private untuk menyimpan CollisionReferee
     private CollisionReferee collisionReferee;
-    private float enemyShootTimer = 0f;
     private InputHandler inputHandler;
     private GameHUD gameHUD;
+    private float enemyShootTimer = 0f;
+    private float waveTimer = 0f;
+    private int wave1SpawnIndex = 0;
 
     @Override
     public void create() {
-        List<Fairy> fairy = new ArrayList<>();
-
         batch = new SpriteBatch();
         fairy = new ArrayList<>();
         entities = new ArrayList<>();
@@ -56,26 +54,100 @@ public class Main extends ApplicationAdapter {
         inputHandler = new InputHandler();
         gameHUD = new GameHUD();
 
-        // TODO 3:
-        // Sebelum membuat entitas, ambil instance AssetManager dan panggil init().
+        // 1. Centralized Asset Registration (AssetManager Singleton + Flyweight)
         AssetManager.getInstance().init();
 
+        // 2. Instantiate entities via Factory Pattern (EntityFactory)
         player = EntityFactory.createPlayer(200, 50, "Reimu Hakurei", 100, 15, 3);
-        fairy.add(EntityFactory.createFairy(150, 380, "Red Fairy", 20));
-        fairy.add(EntityFactory.createFairy(250, 380, "Blue Fairy", 20, "fairy_idle_blue"));
-        boss = EntityFactory.createBoss(250, 400, "Rumia", 150);
+        boss = EntityFactory.createBoss(200, 420, "Rumia", 150);
         powerItem = EntityFactory.createItem(180, 450, ItemType.POWER);
         pointItem = EntityFactory.createItem(220, 480, ItemType.POINT);
+
+        // 3. Register GameHUD as Observer to Player (Observer Pattern)
         player.registerObserver(gameHUD);
-        
+
         entities.add(player);
-        entities.addAll(fairy);
         entities.add(boss);
         entities.add(powerItem);
         entities.add(pointItem);
+
+        // 4. Configure InputHandler with entities list for Bomb drops
         inputHandler.setEntities(entities);
+
+        bulletManager.setEntities(entities);
+        // TODO (3 poin): Suntikkan strategi awal ke Bos Rumia
+        boss.setMovementPattern(new TargetPointMovement(200f, 420f, 150f));
+        boss.setShootingPattern(new SpreadShot(220f, 5, 25f, 10, player, "bullet_danmaku_red"));
+
+    }
+    
+    private void updateFairyWave(float delta) {
+        float[] spawnX = {60f, 68f, 76f, 84f, 92f};
+        waveTimer += delta;
+        if (wave1SpawnIndex < spawnX.length && waveTimer >= 1.0f + wave1SpawnIndex * 0.267f) {
+            float x = spawnX[wave1SpawnIndex++];
+            Fairy f = EntityFactory.createFairy(x, 480f, "Left S-Curve Fairy", 8, "fairy_idle_blue");
+
+            // TODO (2 poin): Tetapkan Movement Pattern ke f sebagai SCurveMovement dengan speed 130f, initialAngle (float) Math.toRadians(270), dan mirrored false
+            // TODO (1 poin): Tetapkan Shooting Pattern ke f sebagai null
+
+            fairy.add(f);
+            entities.add(f);
+        }
     }
 
+    private void resetFairyWave() {
+        waveTimer = 0f;
+        wave1SpawnIndex = 0;
+    }
+
+    @Override
+    public void render() {
+        float delta = Gdx.graphics.getDeltaTime();
+
+        // 0. Restart Game on 'R' key when Game Over
+        if (Gdx.input != null && Gdx.input.isKeyJustPressed(Input.Keys.R) && player.isGameOver()) {
+            restartGame();
+        }
+
+        // 1. Process Input via Command Pattern (Bob Nystrom Invoker Command Stream)
+        List<Command> commands = inputHandler.handleInput(delta);
+        for (Command command : commands) {
+            command.execute(player, bulletManager);
+        }
+
+        // 2. Periodic Enemy Action Scheduler (Foreshadows Module 9 strategy updates)
+        updateEnemyScheduler(delta);
+
+        // 3. Generic update & safe removal of standard entities
+        updateAndClean(entities, delta, 416, 560);
+
+        // 4. Object Pool Update (BulletManager)
+        bulletManager.update(delta, 416, 560);
+
+        // 5. Mediator Pattern Collision Resolution (CollisionReferee - Core vs Graze detection)
+        collisionReferee.resolveCollisions(player, entities, bulletManager);
+
+        // 6. Clear screen
+        ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
+
+        // 7. Render active entity sprites, pooled bullets, and Observer UI HUD with SpriteBatch
+        batch.begin();
+        for (GameObject entity : entities) {
+            if (!entity.isDestroyed()) {
+                entity.render(batch);
+            }
+        }
+        bulletManager.render(batch);
+        gameHUD.render(batch);
+        batch.end();
+
+        // 8. Render UI Frame Lines & Focus Mode Core Hurtbox Indicator (Drawn ON TOP of sprites!)
+        gameHUD.renderBackground();
+        player.renderFocusIndicator(gameHUD.getShapeRenderer());
+    }
+
+    // Periodic Enemy Action Scheduler (Foreshadows Module 9 dynamic strategy updates)
     private void updateEnemyScheduler(float delta) {
         enemyShootTimer += delta;
         if (enemyShootTimer >= 1.5f) {
@@ -83,6 +155,7 @@ public class Main extends ApplicationAdapter {
             enemyShootTimer = 0f;
         }
     }
+
     private void restartGame() {
         System.out.println("[Main] Restarting game...");
         entities.clear();
@@ -104,70 +177,7 @@ public class Main extends ApplicationAdapter {
         entities.add(pointItem);
     }
 
-
-    @Override
-    public void render() {
-        batch = new SpriteBatch();
-        shapeRenderer = new ShapeRenderer();
-        float delta = Gdx.graphics.getDeltaTime();
-
-        // TODO: Buat input player. Jika tombol Z ditekan panggil
-        // player.shootBullet(bulletManager);
-        if(Gdx.input.isKeyJustPressed(Input.Keys.Z) || Gdx.input.isKeyJustPressed(Input.Keys.X)){
-            player.shootBullet(bulletManager);
-        }
-
-        // TODO: Scheduler tembakan berkala Bos Rumia
-        updateEnemyScheduler(delta);
-
-        // TODO: Generic update & clean untuk entitas standar (Player, Enemy, Item)
-        updateAndClean(entities, delta, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
-        // TODO: Update dan daur ulang Object Pool
-        bulletManager.update(delta, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        collisionReferee.resolveCollisions(player, entities, bulletManager);
-        ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
-
-        for (GameObject obj : entities) {
-            obj.update(delta);
-        }
-
-        for (int i = 0; i < entities.size(); i++) {
-            for (int j = i + 1; j < entities.size(); j++) {
-                GameObject a = entities.get(i);
-                GameObject b = entities.get(j);
-
-                // TODO: Cek apakah getCoreHitbox() milik a dan b saling overlap (gunakan method .overlaps() milik Rectangle)
-                // TODO: Panggil a.onCollision(b) dan b.onCollision(a)
-                if(a.getCoreHitbox().overlaps(b.getCoreHitbox())) {
-                    a.onCollision(b);
-                    b.onCollision(a);
-                }
-            }
-        }
-
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        for (GameObject entity : entities) {
-            if(!entity.isDestroyed()) {
-                entity.render(shapeRenderer);
-            }
-        }
-        shapeRenderer.end();
-        ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
-
-        batch.begin();
-        for (GameObject entity : entities) {
-            if (!entity.isDestroyed()) {
-                // TODO: Buat agar setiap entity melakukan method .render() dengan mengoper parameter SpriteBatch.
-                entity.render(batch);
-            }
-        }
-        bulletManager.render(batch);
-        batch.end();
-
-    }
-
-    // Non-static (Instance) Generic Method with Bounded Type Parameter <T extends GameObject>
+    // Generic Instance Method with Bounded Type Parameter <T extends GameObject>
     public <T extends GameObject> void updateAndClean(List<T> list, float delta, float screenWidth, float screenHeight) {
         Iterator<T> iterator = list.iterator();
         while (iterator.hasNext()) {
@@ -176,19 +186,19 @@ public class Main extends ApplicationAdapter {
 
             if (entity.isOffScreen(screenWidth, screenHeight) || entity.isDestroyed()) {
                 System.out.println("Removed via Generic Iterator: " + entity.getClass().getSimpleName());
-                iterator.remove();
+                iterator.remove(); // Safe removal using Iterator!
             }
         }
     }
-
 
     @Override
     public void dispose() {
         if (batch != null) {
             batch.dispose();
         }
-
-        // TODO: Panggil dispose untuk AssetManager agar Texture yang dimuat juga dilepas.
+        if (gameHUD != null) {
+            gameHUD.dispose();
+        }
         AssetManager.getInstance().dispose();
     }
 }

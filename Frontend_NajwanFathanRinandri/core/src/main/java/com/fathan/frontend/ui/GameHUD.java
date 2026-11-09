@@ -19,17 +19,10 @@ public class GameHUD implements GameObserver {
     private ShapeRenderer shapeRenderer;
 
     public GameHUD() {
-        // Diinisialisasi secara lazy saat rendering agar aman dijalankan pada pengujian CLI tanpa layar
+        // Lazy initialized during rendering to safely support headless CLI tests
     }
 
-    // TODO: Implementasikan metode dari interface GameObserver:
-    // 1. onScoreChanged(long newScore) -> perbarui nilai atribut this.score
-    // 2. onHpChanged(int currentHp) -> perbarui nilai atribut this.hp
-    // 3. onSpellCardsChanged(int currentSpellCards) -> perbarui nilai atribut this.spellCards
-    // 4. onPowerChanged(int currentPower) -> perbarui nilai atribut this.power
-    // 5. onGrazeChanged(int currentGraze) -> perbarui nilai atribut this.grazeCount
-    // 6. onLivesChanged(int currentLives) -> perbarui nilai atribut this.lives (Sistem Nyawa Touhou)
-
+    // Observer Pattern Updates
     @Override
     public void onScoreChanged(long newScore) {
         this.score = newScore;
@@ -38,6 +31,11 @@ public class GameHUD implements GameObserver {
     @Override
     public void onHpChanged(int currentHp) {
         this.hp = currentHp;
+    }
+
+    @Override
+    public void onLivesChanged(int currentLives) {
+        this.lives = currentLives;
     }
 
     @Override
@@ -55,12 +53,6 @@ public class GameHUD implements GameObserver {
         this.grazeCount = currentGraze;
     }
 
-    @Override
-    public void onLivesChanged(int currentLives) {
-        this.lives = currentLives;
-    }
-
-
     public void renderBackground() {
         if (Gdx.graphics != null && Gdx.gl != null) {
             if (shapeRenderer == null) {
@@ -68,10 +60,10 @@ public class GameHUD implements GameObserver {
             }
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             shapeRenderer.setColor(Color.LIGHT_GRAY);
-            // Kotak batas area bermain (Playfield): X: 32..416, Y: 16..560 (Lebar 384, Tinggi 544)
+            // Playfield boundary box: X: 32..416, Y: 16..560 (Width 384, Height 544)
             shapeRenderer.rect(32, 16, 384, 544);
 
-            // Kotak batas panel informasi (Sidebar): X: 432..768, Y: 16..560 (Lebar 336, Tinggi 544)
+            // Sidebar boundary box: X: 432..768, Y: 16..560 (Width 336, Height 544)
             shapeRenderer.setColor(Color.DARK_GRAY);
             shapeRenderer.rect(432, 16, 336, 544);
             shapeRenderer.end();
@@ -113,40 +105,11 @@ public class GameHUD implements GameObserver {
         return shapeRenderer;
     }
 
-    // TODO: Buat getter untuk score, hp, lives, spellCards, power, dan grazeCount
-    int getHp() {
-        return hp;
-    }
-    int getLives() {
-        return lives;
-    }
-    int getSpellCards() {
-        return spellCards;
-    }
-    int getPower() {
-        return power;
-    }
-    int getGrazeCount() {
-        return grazeCount;
-    }
-
-    void setHp(int hp) {
-        this.hp = hp;
-    }
-
-    void setLives(int lives) {
-        this.lives = lives;
-    }
-
-    void setSpellCards(int spellCards) {
-        this.spellCards = spellCards;
-    }
-
-    void setPower(int power) {
-        this.power = power;
-    }
-
-    void setGrazeCount(int grazeCount) {
-        this.grazeCount = grazeCount;
-    }
+    // Encapsulation getters for Testing
+    public long getScore() { return score; }
+    public int getHp() { return hp; }
+    public int getLives() { return lives; }
+    public int getSpellCards() { return spellCards; }
+    public int getPower() { return power; }
+    public int getGrazeCount() { return grazeCount; }
 }

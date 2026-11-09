@@ -55,6 +55,16 @@ public class AssetManager {
         registerRegionFromSheet("item_point", "items.png", 16, 16, 0, 1);
         registerRegionFromSheet("item_bomb",  "items.png", 16, 16, 0, 3);
         registerRegionFromSheet("item_life",  "items.png", 16, 16, 0, 5);
+
+        // TODO (4 poin): Daftarkan variasi warna tekstur peluru Danmaku (bullets_small.png, ukuran 16x16 per tile)
+        // Gunakan registerRegionFromSheet() dengan parameter: key, filename, tileWidth, tileHeight, row, col
+        registerRegionFromSheet("bullet_danmaku",        "bullets_small.png", 16, 16, 2, 3); // Default / Blue
+        registerRegionFromSheet("bullet_danmaku_blue",   "bullets_small.png", 16, 16, 2, 3);
+        registerRegionFromSheet("bullet_danmaku_red",    "bullets_small.png", 16, 16, 2, 6);
+        registerRegionFromSheet("bullet_danmaku_purple", "bullets_small.png", 16, 16, 2, 4);
+        registerRegionFromSheet("bullet_danmaku_orange", "bullets_small.png", 16, 16, 2, 15);
+        registerRegionFromSheet("bullet_danmaku_green",  "bullets_small.png", 16, 16, 2, 10);
+
     }
 
     // 1. O(1) Dynamic Flyweight Lookups (No switch statements)

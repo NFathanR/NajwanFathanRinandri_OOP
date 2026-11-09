@@ -34,11 +34,12 @@ public abstract class GameObject implements Collidable {
         stateTime += delta;
     }
 
-    // Render with SpriteBatch (supports animated frames or static sprite)
+    // Render with SpriteBatch (respects animation PlayMode - LOOP vs NORMAL)
     public void render(SpriteBatch batch) {
         if (batch != null && active) {
             if (animation != null) {
-                TextureRegion currentFrame = animation.getKeyFrame(stateTime, true);
+                boolean looping = (animation.getPlayMode() == Animation.PlayMode.LOOP);
+                TextureRegion currentFrame = animation.getKeyFrame(stateTime, looping);
                 batch.draw(currentFrame, x, y, width, height);
             } else if (sprite != null) {
                 batch.draw(sprite, x, y, width, height);
@@ -54,14 +55,18 @@ public abstract class GameObject implements Collidable {
         }
     }
 
+    // Core Hitbox: Centered smaller death hurtbox inside the object
     @Override
     public Rectangle getCoreHitbox() {
-        return new Rectangle(x, y, width, height);
+        float cw = width * 0.5f;
+        float ch = height * 0.5f;
+        return new Rectangle(x + (width - cw) / 2f, y + (height - ch) / 2f, cw, ch);
     }
 
+    // Graze Hitbox: Full sprite dimensions for close-call detection
     @Override
     public Rectangle getGrazeHitbox() {
-        return new Rectangle(x - 10, y - 10, width + 20, height + 20);
+        return new Rectangle(x, y, width, height);
     }
 
     @Override
@@ -110,7 +115,18 @@ public abstract class GameObject implements Collidable {
     public void setSprite(TextureRegion sprite) { this.sprite = sprite; }
 
     public Animation<TextureRegion> getAnimation() { return animation; }
-    public void setAnimation(Animation<TextureRegion> animation) { this.animation = animation; }
+    public void setAnimation(Animation<TextureRegion> animation) {
+        if (this.animation != animation) {
+            this.animation = animation;
+            this.stateTime = 0f; // Reset frame timer when changing animation
+        }
+    }
 
     public boolean isActive() { return active; }
+
+    public void setActive(boolean active) { this.active = active; }
+
+    public float getStateTime() { return stateTime; }
+    public void setStateTime(float stateTime) { this.stateTime = stateTime; }
+
 }

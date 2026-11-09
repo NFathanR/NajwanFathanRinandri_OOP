@@ -1,6 +1,8 @@
 package com.fathan.frontend.objects.patterns.shootingStrategy;
 
-import com.fathan.frontend.objects.BulletManager;
+import com.fathan.frontend.objects.bullets.Bullet;
+import com.fathan.frontend.objects.patterns.bulletStrategy.BulletMovementPattern;
+import com.fathan.frontend.systems.BulletManager;
 import com.fathan.frontend.objects.GameObject;
 import com.fathan.frontend.objects.patterns.ShootingPattern;
 
@@ -8,7 +10,12 @@ public class SpreadShot implements ShootingPattern {
     private float speed;
     private int numBullets;
     private float spreadAngleDegrees;
+    private float damage;
     private GameObject target;
+    private float horizontalSpacing = 0f;
+    private BulletMovementPattern bulletMovementPattern;
+    private String spriteKey;
+
 
     // Konstruktor Spreadshot dengan sudut statis
     public SpreadShot(float speed, int numBullets, float spreadAngleDegrees) {
@@ -22,6 +29,29 @@ public class SpreadShot implements ShootingPattern {
         this.spreadAngleDegrees = spreadAngleDegrees;
         this.target = target;
     }
+    // Master Constructor: Menampung seluruh atribut dan konfigurasi
+    public SpreadShot(float speed, int numBullets, float spreadAngleDegrees, int damage, float horizontalSpacing, BulletMovementPattern bulletMovementPattern, GameObject target, String spriteKey) {
+        this.speed = speed;
+        this.numBullets = numBullets;
+        this.spreadAngleDegrees = spreadAngleDegrees;
+        this.damage = damage;
+        this.horizontalSpacing = horizontalSpacing;
+        this.bulletMovementPattern = bulletMovementPattern;
+        this.target = target;
+        this.spriteKey = spriteKey;
+    }
+
+    // Konstruktor baru: menyuntikkan strategi trajektori (BulletMovementPattern)
+    public SpreadShot(float speed, int numBullets, float spreadAngleDegrees, int damage, BulletMovementPattern bulletMovementPattern) {
+        this(speed, numBullets, spreadAngleDegrees, damage, 0f, bulletMovementPattern, null, null);
+    }
+
+    // Konstruktor baru: menyuntikkan target dan sprite warna peluru (misal: "bullet_danmaku_red")
+    public SpreadShot(float speed, int numBullets, float spreadAngleDegrees, int damage, GameObject target, String spriteKey) {
+        this(speed, numBullets, spreadAngleDegrees, damage, 0f, null, target, spriteKey);
+    }
+
+
 
     @Override
     public void execute(float originX, float originY, BulletManager bulletManager, boolean isPlayer) {
@@ -37,23 +67,47 @@ public class SpreadShot implements ShootingPattern {
 
         float startAngle = centerAngle - (spreadAngleDegrees / 2f);
         float angleStep = (numBullets > 1) ? (spreadAngleDegrees / (numBullets - 1)) : 0;
-        int damage = isPlayer ? 25 : 15;
+        int bulletDamage = isPlayer ? 25 : 15;
+
+        float startX = (horizontalSpacing > 0f && numBullets > 1) ? (originX - ((numBullets - 1) * horizontalSpacing / 2f)) : originX;
 
         for (int i = 0; i < numBullets; i++) {
             float angleDeg = startAngle + (i * angleStep);
             float angleRad = (float) Math.toRadians(angleDeg);
 
-            // Dekomposisi kecepatan ke sumbu X dan Y
             float vx = (float) (speed * Math.cos(angleRad));
             float vy = (float) (speed * Math.sin(angleRad));
+            float spawnX = (horizontalSpacing > 0f && numBullets > 1) ? (startX + i * horizontalSpacing) : originX;
 
+            Bullet bullet;
             if (isPlayer) {
-                bulletManager.spawnPlayerBullet(originX, originY, vx, vy, damage);
+                bullet = bulletManager.spawnPlayerBullet(spawnX, originY, vx, vy, bulletDamage, spriteKey);
             } else {
-                bulletManager.spawnEnemyBullet(originX, originY, vx, vy, damage);
+                bullet = (spriteKey != null)
+                    ? bulletManager.spawnEnemyBullet(spawnX, originY, vx, vy, bulletDamage, spriteKey)
+                    : bulletManager.spawnEnemyBullet(spawnX, originY, vx, vy, bulletDamage);
+            }
+
+            // Suntikkan strategi trajektori ke peluru bila tersedia
+            if (bullet != null && bulletMovementPattern != null) {
+                bullet.setMovementPattern(bulletMovementPattern);
+            }
+
+
+            if (bullet != null && bulletMovementPattern != null) {
+                bullet.setMovementPattern(bulletMovementPattern);
             }
         }
     }
+
+    public float getHorizontalSpacing() { return horizontalSpacing; }
+    public void setHorizontalSpacing(float horizontalSpacing) { this.horizontalSpacing = horizontalSpacing; }
+
+    public BulletMovementPattern getBulletMovementPattern() { return bulletMovementPattern; }
+    public void setBulletMovementPattern(BulletMovementPattern bulletMovementPattern) { this.bulletMovementPattern = bulletMovementPattern; }
+
+    public String getSpriteKey() { return spriteKey; }
+    public void setSpriteKey(String spriteKey) { this.spriteKey = spriteKey; }
 
     public float getSpeed() { return speed; }
     public void setSpeed(float speed) { this.speed = speed; }
