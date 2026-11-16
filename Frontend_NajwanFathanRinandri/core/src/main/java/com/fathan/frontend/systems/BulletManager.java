@@ -80,8 +80,8 @@ public class BulletManager {
 
         List<GameObject> targetEntities = (entities != null) ? entities : this.entities;
         // TODO (2 poin): Terapkan Strategy Composition — buat objek RingShot dengan bulletSpeed 150f, jumlah peluru orbCount, damage orbDamage, dan strategi pergerakan peluru berupa FantasySealMovement(targetEnemy, targetEntities), lalu panggil execute(originX, originY, this, true)
-        new RingShot(150f, orbCount, orbDamage, new FantasySealMovement(targetEnemy, targetEntities));
-        RingShot.execute(originX, originY, this, true);
+        RingShot bombPattern = new RingShot(150f, orbCount, orbDamage, new FantasySealMovement(targetEnemy, targetEntities));
+        bombPattern.execute(originX, originY, this, true);
 
         System.out.println("[BulletManager] Spawned 8 Bomb Spirit Orbs via RingShot composed with FantasySealMovement!");
     }

@@ -20,6 +20,7 @@ public class Fairy extends Enemy {
         // TODO (1 poin): Suntikkan strategi bawaan FrontShot(150f, 10) dan LinearEntityMovement(0f, -40f)
         setShootingPattern(new FrontShot(150f, 10));
         setMovementPattern(new LinearEntityMovement(0f, -40f));
+        setShotHitboxSize(28f, 28f);
     }
 
     public Fairy(float x, float y, String name, int hp) {
@@ -27,6 +28,7 @@ public class Fairy extends Enemy {
         // TODO: Suntikkan strategi bawaan yang sama
         setShootingPattern(new FrontShot(150f, 10));
         setMovementPattern(new LinearEntityMovement(0f, -40f));
+        setShotHitboxSize(28f, 28f);
     }
 
     public Fairy(float x, float y, String name, int hp, float shootDelay, float shootInterval, int maxShots) {
@@ -37,6 +39,7 @@ public class Fairy extends Enemy {
         // TODO (2 poin): Suntikkan strategi bawaan FrontShot dan LinearEntityMovement
         setShootingPattern(new FrontShot(150f, 10));
         setMovementPattern(new LinearEntityMovement(0f, -40f));
+        setShotHitboxSize(28f, 28f);
     }
 
     public boolean canShoot(float delta) {
@@ -69,3 +72,4 @@ public class Fairy extends Enemy {
     public float getShootInterval() { return shootInterval; }
     public int getMaxShots() { return maxShots; }
 }
+

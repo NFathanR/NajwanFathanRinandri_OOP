@@ -284,7 +284,7 @@ public class Player extends EntityShooter {
         float minX = 32;
         float maxX = 416 - width;
         float minY = 16;
-        float maxY = 560 - height;
+        float maxY = 464 - height;
 
         if (x < minX) x = minX;
         if (x > maxX) x = maxX;
@@ -512,7 +512,7 @@ public class Player extends EntityShooter {
     public void resetGame() {
         this.lives = 3;
         this.hp = 100;
-        this.power = 15;
+        this.power = 0;
         this.spellCards = 3;
         this.score = 0;
         this.grazeCount = 0;

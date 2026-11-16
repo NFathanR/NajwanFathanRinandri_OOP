@@ -12,7 +12,6 @@ public class FantasySealMovement implements BulletMovementPattern {
     private float homingSpeed;
     private float turnSpeed;
     private float driftDuration; // Phase 1 drift time before homing (default 0.4 seconds)
-    private float timer = 0f;
 
     public FantasySealMovement(GameObject target, List<GameObject> entities, float homingSpeed, float turnSpeed, float driftDuration) {
         this.target = target;
@@ -33,9 +32,8 @@ public class FantasySealMovement implements BulletMovementPattern {
     @Override
     public void move(Bullet bullet, float delta) {
         if (bullet == null) return;
-        timer += delta;
 
-        if (timer < driftDuration) {
+        if (bullet.getStateTime() < driftDuration) {
             // Phase 1 (TH06 Radial Drift): Bullet moves along its initial radial velocity vector (vx, vy)
             bullet.setX(bullet.getX() + bullet.getVx() * delta);
             bullet.setY(bullet.getY() + bullet.getVy() * delta);
